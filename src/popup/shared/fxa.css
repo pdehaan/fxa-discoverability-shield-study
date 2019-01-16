@@ -1,21 +1,24 @@
 body {
   background-color: white;
-  font-family: 'comic sans', sans-serif;
-  width: 375px;
+  margin: 0px;
+  font-size: .9em;
 }
 
 #unverified,
 #sign_in {
-  padding: 25px;
+  width: 290px;
+  height: 306px;
 }
 
 #authenticated {
   padding: 0px;
+  width: 290px;
+  height: 170px;
 }
 
 .title {
   color: #666666;
-  font-size: 1.2em;
+  font-size: 1.4em;
   line-height: 1.7em;
   margin: auto;
   text-align: center;
@@ -27,23 +30,24 @@ body {
   line-height: 1.7em;
   margin: auto;
   text-align: center;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
+  width: 200px;
 }
 
 .graphic-choose-what-to-sync {
   background-image: url('../../icons/choose_what_to_sync_devices.svg');
-  height: 100px;
-  width: 200px;
-  margin:  25px auto 25px auto;
+  height: 103px;
+  width: 202px;
   background-repeat: no-repeat;
+  margin: 25px 44px 9px 44px;
 }
 
 .graphic-mail {
   background-image: url('../../icons/graphic_mail.svg');
   height: 100px;
   width: 200px;
-  margin:  25px auto 25px auto;
   background-repeat: no-repeat;
+  margin: 36px 44px 9px 44px;
 }
 
 .hidden {
@@ -53,15 +57,15 @@ body {
 #display-name,
 #email {
   color: #666666;
-  line-height: 1.4em;
-    font-size: .9em;
+  line-height: 1.6em;
+  font-size: 1em;
 }
 
 #avatar {
   background-image: url('../../icons/avatar.svg');
   background-size: contain;
-  height: 30px;
-  width: 30px;
+  height: 32px;
+  width: 32px;
   border-radius: 50%;
   cursor: pointer;
 }
@@ -74,19 +78,17 @@ ul {
 li {
   list-style-type: none;
   margin: 0;
-  padding: 10px 0px 6px 10px;
+  padding: 10px 0px 7px 16px;
   width: 100%;
-  border-bottom: 1px solid #ddd;
 }
 
-li:hover {
-  background: #ddd;
+li:hover:not(:first-child){
+  background: #ededed;
 }
 
-li img{
+li img {
   height: 20px;
   width: 20px;
-  margin-left: 10px;
   margin-right: 10px;
 }
 
@@ -95,19 +97,19 @@ li img{
 }
 
 #avatar {
-  margin-right: 15px;
+  margin-right: 16px;
   margin-left: 5px;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  height: 25px;
-  padding: 12px 0px 12px 0px;
+  height: 18px;
+  font-size: 13px;
 }
 
 .avatar-menu {
-  height: 35px;
+  height: 46px;
 }
 
 /* Taken from content server css */
@@ -116,12 +118,13 @@ button {
   align-items: center;
   background: rgba(12, 12, 13, 0.1);
   border: 0;
+  border-radius: 4px;
   color: #0c0c0d;
   cursor: pointer;
   display: inline-flex;
-  font-size: 15px;
+  font-size: 12px;
   font-weight: 300;
-  height: 48px;
+  height: 41px;
   justify-content: center;
   letter-spacing: 0.2px;
   padding: 0 8px;
@@ -132,19 +135,27 @@ button {
   -ms-user-select: none;
   -webkit-user-select: none;
   user-select: none;
-  width: 100%; }
+  width: 200px;
+  margin: 10px 44px 9px 44px;
+}
+
 button.primary-button {
   background: #0060df;
-  color: #fff; }
+  color: #fff;
+}
+
 .button[type='submit']:hover, .button.primary-button:hover,
 .settings-button[type='submit']:hover,
 .settings-button.primary-button:hover,
 button[type='submit']:hover,
 button.primary-button:hover {
-  background: #003eaa; }
+  background: #003eaa;
+}
+
 .button[type='submit']:active, .button.primary-button:active,
 .settings-button[type='submit']:active,
 .settings-button.primary-button:active,
 button[type='submit']:active,
 button.primary-button:active {
-  background: #002275; }
+  background: #002275;
+}

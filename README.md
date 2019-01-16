@@ -5,15 +5,13 @@
 This repository uses the [Shield Study Template](https://wiki.mozilla.org/Firefox/Shield/Shield_Studies) to build the Firefox
 Account Browser Discoverability Shield Study.
 
-## Running as temporary add-on in Firefox > 61
+## Running as temporary add-on in Firefox Nightly
 
 Please run at your own risk, this is currently still in active development.
 
-1) Goto `about:addons`
-2) Click gear next to Keyboard Shortcuts
-3) Click `Debug Add-ons`
-4) Click `Load Temporary Add-on`
-5) Select add-on version in `dist`
+1) Goto `about:debugging`
+2) Click `Load Temporary Add-on`
+3) Select add-on version in `dist` folder
 
 ### WIP Documentation
 

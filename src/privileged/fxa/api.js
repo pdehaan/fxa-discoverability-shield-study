@@ -16,6 +16,17 @@ ChromeUtils.defineModuleGetter(this, "BrowserWindowTracker", "resource:///module
 const { EventManager } = ExtensionCommon;
 const EventEmitter = ExtensionCommon.EventEmitter || ExtensionUtils.EventEmitter;
 
+function sanitizeUser(user) {
+  if (user && user.profileCache && user.profileCache.profile) {
+    return {
+      ...user.profileCache.profile,
+      verified: user.verified,
+    };
+  }
+
+  return user;
+}
+
 this.fxa = class extends ExtensionAPI {
   /**
    * Extension Shutdown
@@ -33,9 +44,8 @@ this.fxa = class extends ExtensionAPI {
     return {
       fxa: {
         async getSignedInUser() {
-          const data = await fxAccounts.getSignedInUser();
-          console.log("api::getSignedInUser", data);
-          return data;
+          let user = await fxAccounts.getSignedInUser();
+          return sanitizeUser(user);
         },
 
         async openSyncPreferences() {
@@ -45,7 +55,6 @@ this.fxa = class extends ExtensionAPI {
 
         onUpdate: new EventManager(context, "FxAEventEmitter.onUpdate",
           fire => {
-            console.log("api::onUpdate");
             const listener = (value) => {
               fire.async(value);
             };
@@ -53,17 +62,14 @@ this.fxa = class extends ExtensionAPI {
             return () => {
               fxaEventEmitter.off("onUpdate", listener);
             };
-          },
+          }
         ).api(),
 
         listen() {
-          console.log("api::listen");
-
           EnsureFxAccountsWebChannel();
 
           const broker = {
             observe(subject, topic, data) {
-              console.log("broker::observe:", subject, topic, data);
               switch (topic) {
                 case ONLOGIN_NOTIFICATION:
                 case ONLOGOUT_NOTIFICATION:

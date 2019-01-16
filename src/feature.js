@@ -53,9 +53,7 @@ class FxABrowserFeature {
    * - set image, text, click handler (telemetry)
    */
   constructor(variation) {
-    console.log("Initializing FxABrowserFeature:", variation.name);
-
-    browser.browserAction.setTitle({ title: variation.name });
+    browser.browserAction.setTitle({ title: "Firefox Account" });
 
     browser.fxa.listen();
 
@@ -87,41 +85,34 @@ class FxABrowserFeature {
   _noUser() {
     this._defaultAvatar();
     browser.browserAction.setIcon({ path: "icons/avatar.svg" });
-    browser.browserAction.setPopup({
-      popup: "popup/sign_in/sign_in.html",
-    });
+    browser.browserAction.setPopup({ popup: "popup/sign_in/sign_in.html" });
   }
 
   _unverifiedUser() {
     this._defaultAvatar();
     browser.browserAction.setIcon({ path: "icons/avatar_confirm.svg" });
-    browser.browserAction.setPopup({
-      popup: "popup/unverified/unverified.html",
-    });
+    browser.browserAction.setPopup({ popup: "popup/unverified/unverified.html" });
   }
 
   _verifiedUser(user) {
-    if (!user.profileCache || !user.profileCache.profile.avatar) {
-      this._defaultAvatar(user.email);
+    if (!user || user.avatarDefault) {
+      this._defaultAvatar();
     } else {
-      this._userAvatar(user.profileCache.profile.avatar);
+      this._userAvatar(user.avatar);
     }
 
-    browser.browserAction.setPopup({
-      popup: "popup/menu/menu.html",
-    });
+    browser.browserAction.setPopup({ popup: "popup/menu/menu.html" });
   }
 
   _defaultAvatar() {
     if (this._avatar) {
       this._avatar = null;
-      // TODO: Render first character of email instead
-      browser.browserAction.setIcon({ path: "icons/avatar.svg" });
     }
+    // TODO We should also handle rendering first letter of email as the avatar in here.
+    browser.browserAction.setIcon({ path: "icons/avatar.svg" });
   }
 
   _userAvatar(url) {
-    console.log("FxABrowserFeature::_userAvatar");
     if (this._avatar && this._avatarUrl === url) {
       return;
     }
@@ -147,7 +138,7 @@ class FxABrowserFeature {
       this._avatar = ctx.getImageData(0, 0, 200, 200);
 
       browser.browserAction.setIcon({ imageData: this._avatar });
-    }
+    };
     img.src = url;
   }
 }
