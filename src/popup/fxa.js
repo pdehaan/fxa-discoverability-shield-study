@@ -45,6 +45,7 @@ function createNewTab(url) {
 
 function openSyncPreferences() {
   browser.fxa.openSyncPreferences();
+  window.close();
 }
 
 if (document.getElementById("sign-in-button")) {

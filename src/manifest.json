@@ -1,7 +1,7 @@
 {
-  "name": "Firefox Account Browser Icon - Shield Study",
+  "name": "Firefox Account Discovery",
   "description": "__MSG_extensionDescription__",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "manifest_version": 2,
   "applications": {
     "gecko": {

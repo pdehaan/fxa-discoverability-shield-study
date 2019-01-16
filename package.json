@@ -1,10 +1,10 @@
 {
-  "name": "shield-studies-addon-template",
+  "name": "fxa-discoverability-shield-study",
   "description": "Template Shield Study",
   "version": "2.0.0",
   "author": "Mozilla",
   "bugs": {
-    "url": "https://github.com/mozilla/shield-studies-addon-template/issues"
+    "url": "https://github.com/mozilla/fxa-discoverability-shield-study/issues"
   },
   "dependencies": {
     "shield-studies-addon-utils": "github:mozilla/shield-studies-addon-utils#5.0.4"
@@ -51,7 +51,7 @@
   "engines": {
     "node": ">=8.11.1"
   },
-  "homepage": "https://github.com/mozilla/shield-studies-addon-template",
+  "homepage": "https://github.com/mozilla/fxa-discoverability-shield-study",
   "keywords": [
     "firefox",
     "mozilla",
@@ -61,7 +61,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git://github.com/mozilla/shield-studies-addon-template.git"
+    "url": "git://github.com/mozilla/fxa-discoverability-shield-study.git"
   },
   "scripts": {
     "build": "web-ext build",
