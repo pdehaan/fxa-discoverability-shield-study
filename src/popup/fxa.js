@@ -7,6 +7,16 @@ const MANAGE_ACCOUNT = `https://accounts.firefox.com/settings?service=sync&conte
 const CHANGE_AVATAR = `https://accounts.firefox.com/settings/avatar/change?service=sync&context=fx_desktop_v3&entrypoint=${ENTRYPOINT}`;
 const DEVICES_AND_APPS = `https://accounts.firefox.com/settings/clients?service=sync&context=fx_desktop_v3&entrypoint=${ENTRYPOINT}`;
 
+const CLICK_HANDLERS = new Map([
+  [ 'sign-in-button', () => createNewTab(SIGN_IN_LINK) ],
+  [ 'manage-account-button', () => createNewTab(MANAGE_ACCOUNT) ],
+  [ 'sync-preferences-button', () => openSyncPreferences() ],
+  [ 'connect-another-device-button', () => createNewTab(CONNECT_ANOTHER_DEVICE) ],
+  [ 'avatar', () => createNewTab(CHANGE_AVATAR) ],
+  [ 'devices-apps-button', () => createNewTab(DEVICES_AND_APPS) ],
+  [ 'unverified-button', () => openSyncPreferences() ],
+])
+
 init();
 
 async function init() {
@@ -15,6 +25,13 @@ async function init() {
   if (user && user.verified) {
     setupAccountMenu(user);
   }
+
+  CLICK_HANDLERS.forEach((handler, id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.addEventListener('click', handler);
+    }
+  });
 }
 
 function setupAccountMenu(user) {
@@ -46,46 +63,4 @@ function createNewTab(url) {
 function openSyncPreferences() {
   browser.fxa.openSyncPreferences();
   window.close();
-}
-
-if (document.getElementById("sign-in-button")) {
-  document.getElementById("sign-in-button").addEventListener("click", () => {
-    createNewTab(SIGN_IN_LINK);
-  });
-}
-
-if (document.getElementById("manage-account-button")) {
-  document.getElementById("manage-account-button").addEventListener("click", () => {
-    createNewTab(MANAGE_ACCOUNT);
-  });
-}
-
-if (document.getElementById("sync-preferences-button")) {
-  document.getElementById("sync-preferences-button").addEventListener("click", () => {
-    openSyncPreferences();
-  });
-}
-
-if (document.getElementById("connect-another-device-button")) {
-  document.getElementById("connect-another-device-button").addEventListener("click", () => {
-    createNewTab(CONNECT_ANOTHER_DEVICE);
-  });
-}
-
-if (document.getElementById("avatar")) {
-  document.getElementById("avatar").addEventListener("click", () => {
-    createNewTab(CHANGE_AVATAR);
-  });
-}
-
-if (document.getElementById("devices-apps-button")) {
-  document.getElementById("devices-apps-button").addEventListener("click", () => {
-    createNewTab(DEVICES_AND_APPS);
-  });
-}
-
-if (document.getElementById("unverified-button")) {
-  document.getElementById("unverified-button").addEventListener("click", () => {
-    openSyncPreferences();
-  });
 }
