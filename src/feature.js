@@ -74,20 +74,17 @@ class FxABrowserFeature {
   }
 
   async updateState() {
-
     // The stored sessionToken will always be the source of truth when checking
     // account state.
     const user = await browser.fxa.getSignedInUser();
-    if (!user) {
+    if (user) {
+      if (user.verified) {
+        this.verifiedUser(user);
+      } else {
+        this.unverifiedUser();
+      }
+    } else {
       this.noUser();
-    }
-
-    if (user && !user.verified) {
-      this.unverifiedUser();
-    }
-
-    if (user && user.verified) {
-      this.verifiedUser(user);
     }
   }
 
