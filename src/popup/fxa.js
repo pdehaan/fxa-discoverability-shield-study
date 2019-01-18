@@ -38,13 +38,14 @@ async function init() {
 
 function setupAccountMenu(user) {
   if (user) {
-    if (document.getElementById("email")) {
-      document.getElementById("email").innerText = user.email;
+    const emailElement = document.getElementById("email");
+    if (emailElement) {
+      emailElement.innerText = user.email;
 
-      if (user.avatarDefault) {
-        document.getElementById("avatar").style.backgroundImage = `url("/icons/avatar.svg")`;
-      } else if (user.avatar) {
+      if (user.avatar) {
         document.getElementById("avatar").style.backgroundImage = `url("${user.avatar}")`;
+      } else {
+        document.getElementById("avatar").style.backgroundImage = `url("/icons/avatar.svg")`;
       }
     }
   }

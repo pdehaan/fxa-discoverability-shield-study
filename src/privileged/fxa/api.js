@@ -11,20 +11,40 @@ ChromeUtils.import("resource://gre/modules/FxAccountsCommon.js");
 ChromeUtils.defineModuleGetter(this, "fxAccounts", "resource://gre/modules/FxAccounts.jsm");
 ChromeUtils.defineModuleGetter(this, "EnsureFxAccountsWebChannel", "resource://gre/modules/FxAccountsWebChannel.jsm");
 ChromeUtils.defineModuleGetter(this, "BrowserWindowTracker", "resource:///modules/BrowserWindowTracker.jsm");
+ChromeUtils.defineModuleGetter(this, "Weave", "resource://services-sync/main.js");
 
 /* eslint-disable no-undef */
 const { EventManager } = ExtensionCommon;
 const EventEmitter = ExtensionCommon.EventEmitter || ExtensionUtils.EventEmitter;
 
 function sanitizeUser(user) {
-  if (user && user.profileCache && user.profileCache.profile) {
+  if (user) {
+    let avatar, email;
+    const { verified } = user;
+
+    if (user.profileCache && user.profileCache.profile) {
+      avatar = user.profileCache.profile.avatar;
+      email = user.profileCache.profile.email;
+    }
+
     return {
-      ...user.profileCache.profile,
-      verified: user.verified,
+      avatar,
+      email,
+      hashedUid: hashedUid(),
+      verified,
     };
   }
 
-  return user;
+  return undefined;
+}
+
+function hashedUid() {
+  try {
+    return Weave.Service.identity.hashedUID();
+  } catch (e) {
+  }
+
+  return undefined;
 }
 
 this.fxa = class extends ExtensionAPI {
@@ -44,7 +64,7 @@ this.fxa = class extends ExtensionAPI {
     return {
       fxa: {
         async getSignedInUser() {
-          let user = await fxAccounts.getSignedInUser();
+          const user = await fxAccounts.getSignedInUser();
           return sanitizeUser(user);
         },
 
@@ -75,7 +95,7 @@ this.fxa = class extends ExtensionAPI {
                 case ONLOGOUT_NOTIFICATION:
                 case ON_PROFILE_CHANGE_NOTIFICATION:
                   console.log("api::onUpdate::emit", topic);
-                  return fxaEventEmitter.emit("onUpdate", data);
+                  fxaEventEmitter.emit("onUpdate", data);
               }
             },
           };
