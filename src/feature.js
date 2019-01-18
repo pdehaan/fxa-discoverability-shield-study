@@ -107,10 +107,10 @@ class FxABrowserFeature {
   }
 
   verifiedUser(user) {
-    if (user.avatarDefault) {
-      this.standardAvatar(DEFAULT_AVATAR);
-    } else {
+    if (user.avatar) {
       this.userAvatar(user.avatar);
+    } else {
+      this.standardAvatar(DEFAULT_AVATAR);
     }
 
     browser.browserAction.setPopup({ popup: "popup/menu/menu.html" });
