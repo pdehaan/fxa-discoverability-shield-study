@@ -1,5 +1,14 @@
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "(feature)" }]*/
 
+const DEFAULT_AVATAR = 0;
+const UNVERIFIED_AVATAR = 1;
+const USER_AVATAR = 2;
+
+const STANDARD_AVATARS = {
+  [DEFAULT_AVATAR]: "icons/avatar.svg",
+  [UNVERIFIED_AVATAR]: "icons/avatar_confirm.svg",
+};
+
 /**  Example Feature module for a Shield Study.
  *
  *  UI:
@@ -65,58 +74,54 @@ class FxABrowserFeature {
   }
 
   async updateState() {
-
     // The stored sessionToken will always be the source of truth when checking
     // account state.
     const user = await browser.fxa.getSignedInUser();
-    if (!user) {
-      this._noUser();
-    }
-
-    if (user && !user.verified) {
-      this._unverifiedUser();
-    }
-
-    if (user && user.verified) {
-      this._verifiedUser(user);
+    if (user) {
+      if (user.verified) {
+        this.verifiedUser(user);
+      } else {
+        this.unverifiedUser();
+      }
+    } else {
+      this.noUser();
     }
   }
 
-  _noUser() {
-    this._defaultAvatar();
-    browser.browserAction.setIcon({ path: "icons/avatar.svg" });
+  noUser() {
+    this.standardAvatar(DEFAULT_AVATAR);
     browser.browserAction.setPopup({ popup: "popup/sign_in/sign_in.html" });
   }
 
-  _unverifiedUser() {
-    this._defaultAvatar();
-    browser.browserAction.setIcon({ path: "icons/avatar_confirm.svg" });
+  standardAvatar(id) {
+    this._avatarUrl = null;
+    if (this._avatar !== id) {
+      this._avatar = id;
+      browser.browserAction.setIcon({ path: STANDARD_AVATARS[id] });
+    }
+  }
+
+  unverifiedUser() {
+    this.standardAvatar(UNVERIFIED_AVATAR);
     browser.browserAction.setPopup({ popup: "popup/unverified/unverified.html" });
   }
 
-  _verifiedUser(user) {
-    if (!user || user.avatarDefault) {
-      this._defaultAvatar();
+  verifiedUser(user) {
+    if (user.avatar) {
+      this.userAvatar(user.avatar);
     } else {
-      this._userAvatar(user.avatar);
+      this.standardAvatar(DEFAULT_AVATAR);
     }
 
     browser.browserAction.setPopup({ popup: "popup/menu/menu.html" });
   }
 
-  _defaultAvatar() {
-    if (this._avatar) {
-      this._avatar = null;
-    }
-    // TODO We should also handle rendering first letter of email as the avatar in here.
-    browser.browserAction.setIcon({ path: "icons/avatar.svg" });
-  }
-
-  _userAvatar(url) {
-    if (this._avatar && this._avatarUrl === url) {
+  userAvatar(url) {
+    if (this._avatar === USER_AVATAR && this._avatarUrl === url) {
       return;
     }
 
+    this._avatar = USER_AVATAR;
     this._avatarUrl = url;
 
     const img = new Image();
@@ -135,9 +140,9 @@ class FxABrowserFeature {
 
       ctx.drawImage(this, 0, 0);
 
-      this._avatar = ctx.getImageData(0, 0, 200, 200);
+      const imageData = ctx.getImageData(0, 0, 200, 200);
 
-      browser.browserAction.setIcon({ imageData: this._avatar });
+      browser.browserAction.setIcon({ imageData });
     };
     img.src = url;
   }
