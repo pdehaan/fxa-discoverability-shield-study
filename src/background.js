@@ -104,9 +104,15 @@ class StudyLifeCycleHandler {
    */
   async handleStudyEnding(ending) {
     console.log(`Study wants to end:`, ending);
-    for (const url of ending.urls) {
+    const user = await browser.fxa.getSignedInUser();
+    const studyInfo = await browser.study.getStudyInfo();
+    const syncstate = user ? 1 : 0;
+
+    for (let url of ending.urls) {
+      url = `${url}&syncstate=${syncstate}&b=${studyInfo.variation.name}`
       await browser.tabs.create({ url });
     }
+
     switch (ending.endingName) {
       // could have different actions depending on positive / ending names
       default:

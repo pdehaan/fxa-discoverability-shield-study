@@ -9,18 +9,34 @@ const STANDARD_AVATARS = {
   [UNVERIFIED_AVATAR]: "icons/avatar_confirm.svg",
 };
 
+const ADDON_ID = "fxadisco";
+const ADDON_VERSION = "1";
+
+const ADDON_TITLE = "Firefox Account";
+const SIGN_IN_PAGE = "popup/sign_in/sign_in.html";
+const UNVERIFIED_PAGE = "popup/unverified/unverified.html";
+const MENU_PAGE = "popup/menu/menu.html";
+
 class FxABrowserFeature {
   constructor() {}
 
   configure(studyInfo) {
     this._variation = studyInfo.variation.name;
-    this.updateState();
-    browser.browserAction.setTitle({ title: "Firefox Account" });
+
+    // For control, the addon is still installed but removed
+    // from the browser toolbar. This will allow us to end the
+    // study and have the user fill out survey.
+    if (studyInfo.variation.name === "control") {
+      browser.fxa.hideExtension();
+      return;
+    }
+
+    browser.browserAction.setTitle({ title: ADDON_TITLE });
+    browser.browserAction.setIcon({ path: STANDARD_AVATARS[DEFAULT_AVATAR] });
 
     browser.fxa.listen();
-    browser.fxa.onUpdate.addListener(() => {
-      this.updateState();
-    });
+    browser.fxa.onUpdate.addListener(this.updateState.bind(this));
+    browser.fxa.onTelemetryPing.addListener(this.sendTelemetry.bind(this));
 
     if (studyInfo.isFirstRun) {
       this.sendTelemetry({
@@ -29,6 +45,8 @@ class FxABrowserFeature {
         doorhangerActiveSeconds: "0",
       });
     }
+
+    this.updateState();
   }
 
   async updateState() {
@@ -49,7 +67,7 @@ class FxABrowserFeature {
   noUser() {
     this._state = null;
     this.standardAvatar(DEFAULT_AVATAR);
-    browser.browserAction.setPopup({ popup: "popup/sign_in/sign_in.html" });
+    browser.browserAction.setPopup({ popup: SIGN_IN_PAGE });
   }
 
   standardAvatar(id) {
@@ -63,18 +81,18 @@ class FxABrowserFeature {
   unverifiedUser() {
     this._state = "unverified";
     this.standardAvatar(UNVERIFIED_AVATAR);
-    browser.browserAction.setPopup({ popup: "popup/unverified/unverified.html" });
+    browser.browserAction.setPopup({ popup: UNVERIFIED_PAGE });
   }
 
   verifiedUser(user) {
     this._state = "verified";
-    if (user.avatar) {
+    if (user.avatar && !user.avatarDefault) {
       this.userAvatar(user.avatar);
     } else {
       this.standardAvatar(DEFAULT_AVATAR);
     }
 
-    browser.browserAction.setPopup({ popup: "popup/menu/menu.html" });
+    browser.browserAction.setPopup({ popup: MENU_PAGE });
   }
 
   userAvatar(url) {
@@ -111,8 +129,8 @@ class FxABrowserFeature {
   sendTelemetry(data) {
     browser.study.sendTelemetry({
       ...data,
-      addonId: "fxadisco",
-      addonVersion: "1",
+      addonId: ADDON_ID,
+      addonVersion: ADDON_VERSION,
       branch: this._variation,
       startTime: `${Date.now()}`,
       fxaState: this._state || "none",

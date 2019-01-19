@@ -1,5 +1,5 @@
 {
-  "name": "Firefox Account Discovery",
+  "name": "Firefox Account browser extension",
   "description": "__MSG_extensionDescription__",
   "version": "1.0.0",
   "manifest_version": 2,
@@ -41,11 +41,11 @@
     "scripts": ["studySetup.js", "feature.js", "background.js"]
   },
   "icons": {
-    "48": "icons/avatar.svg"
+    "48": "icons/empty.svg"
   },
   "browser_action": {
     "browser_style": true,
-    "default_icon": "icons/avatar.svg",
+    "default_icon": "icons/empty.svg",
     "default_title": "__MSG_buttonTitle__",
     "default_popup": "popup/sign_in/sign_in.html"
   }

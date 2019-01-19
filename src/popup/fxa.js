@@ -6,7 +6,6 @@ const CONNECT_ANOTHER_DEVICE = `https://accounts.firefox.com/connect_another_dev
 const MANAGE_ACCOUNT = `https://accounts.firefox.com/settings?service=sync&context=fx_desktop_v3&entrypoint=${ENTRYPOINT}`;
 const CHANGE_AVATAR = `https://accounts.firefox.com/settings/avatar/change?service=sync&context=fx_desktop_v3&entrypoint=${ENTRYPOINT}`;
 const DEVICES_AND_APPS = `https://accounts.firefox.com/settings/clients?service=sync&context=fx_desktop_v3&entrypoint=${ENTRYPOINT}`;
-const SEND_TAB_DEVICE = `https://support.mozilla.org/kb/send-tab-firefox-ios-your-computer?utm_source=${ENTRYPOINT}`;
 
 const CLICK_HANDLERS = new Map([
   [ "sign-in-button", {
@@ -53,8 +52,8 @@ async function init() {
     const element = document.getElementById(id);
     if (element) {
       element.addEventListener("click", () => {
-        handler();
         sendTelemetry(telemetry, Date.now() - startTime);
+        handler();
       });
     }
   });
@@ -68,10 +67,10 @@ function setupAccountMenu(user) {
     if (emailElement) {
       emailElement.innerText = user.email;
 
-      if (user.avatar) {
-        document.getElementById("avatar").style.backgroundImage = `url("${user.avatar}")`;
-      } else {
+      if (user.avatarDefault) {
         document.getElementById("avatar").style.backgroundImage = `url("/icons/avatar.svg")`;
+      } else {
+        document.getElementById("avatar").style.backgroundImage = `url("${user.avatar}")`;
       }
     }
   }
@@ -88,24 +87,5 @@ function openSyncPreferences() {
 }
 
 async function sendTelemetry(interactionType, elapsedTime) {
-  let fxaState, hasAvatar, uid;
-  const user = await browser.fxa.getSignedInUser();
-  if (user) {
-     fxaState = `${user.verified ? "" : "un"}verified`;
-     hasAvatar = `${!!user.avatar}`;
-     uid = user.hashedUid;
-  }
-  console.log(browser.study.getStudyInfo());
-  browser.study.sendTelemetry({
-    addonId: "fxadisco",
-    addonVersion: "1",
-    //branch: browser.study.getStudyInfo().variation.name,
-    startTime: `${Date.now()}`,
-    pingType: "engage",
-    fxaState: fxaState || "none",
-    hasAvatar: hasAvatar || "none",
-    uid: uid || "none",
-    interactionType,
-    doorhangerActiveSeconds: `${Math.round(elapsedTime / 1000)}`,
-  });
+  browser.fxa.emitTelemetryPing(interactionType, elapsedTime);
 }
