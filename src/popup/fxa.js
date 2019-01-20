@@ -67,7 +67,7 @@ function setupAccountMenu(user) {
     if (emailElement) {
       emailElement.innerText = user.email;
 
-      if (user.avatarDefault) {
+      if (user.avatarDefault || !user) {
         document.getElementById("avatar").style.backgroundImage = `url("/icons/avatar.svg")`;
       } else {
         document.getElementById("avatar").style.backgroundImage = `url("${user.avatar}")`;
@@ -86,6 +86,6 @@ function openSyncPreferences() {
   window.close();
 }
 
-async function sendTelemetry(interactionType, elapsedTime) {
+function sendTelemetry(interactionType, elapsedTime) {
   browser.fxa.emitTelemetryPing(interactionType, elapsedTime);
 }
