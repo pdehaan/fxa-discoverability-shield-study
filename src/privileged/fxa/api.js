@@ -12,23 +12,29 @@ ChromeUtils.defineModuleGetter(this, "fxAccounts", "resource://gre/modules/FxAcc
 ChromeUtils.defineModuleGetter(this, "EnsureFxAccountsWebChannel", "resource://gre/modules/FxAccountsWebChannel.jsm");
 ChromeUtils.defineModuleGetter(this, "BrowserWindowTracker", "resource:///modules/BrowserWindowTracker.jsm");
 ChromeUtils.defineModuleGetter(this, "Weave", "resource://services-sync/main.js");
+const { CustomizableUI } = ChromeUtils.import("resource:///modules/CustomizableUI.jsm", {});
 
 /* eslint-disable no-undef */
 const { EventManager } = ExtensionCommon;
 const EventEmitter = ExtensionCommon.EventEmitter || ExtensionUtils.EventEmitter;
 
+const FXA_EXTENSION_WIDGET_ID = "fxa-browser-discoverability_shield_mozilla_org-browser-action";
+const FXA_ENTRYPOINT = "fxa_discoverability";
+
 function sanitizeUser(user) {
   if (user) {
-    let avatar, email;
+    let avatar, email, avatarDefault;
     const { verified } = user;
 
     if (user.profileCache && user.profileCache.profile) {
       avatar = user.profileCache.profile.avatar;
       email = user.profileCache.profile.email;
+      avatarDefault = user.profileCache.profile.avatarDefault;
     }
 
     return {
       avatar,
+      avatarDefault,
       email,
       hashedUid: hashedUid(),
       verified,
@@ -47,6 +53,8 @@ function hashedUid() {
   return undefined;
 }
 
+const fxaEventEmitter = new EventEmitter();
+
 this.fxa = class extends ExtensionAPI {
   /**
    * Extension Shutdown
@@ -60,9 +68,17 @@ this.fxa = class extends ExtensionAPI {
   }
 
   getAPI(context) {
-    const fxaEventEmitter = new EventEmitter();
     return {
       fxa: {
+        async hideExtension() {
+          const widget = await CustomizableUI.getWidget(FXA_EXTENSION_WIDGET_ID);
+
+          if (widget && widget.instances.length > 0 && widget.instances[0].node) {
+            const node = widget.instances[0].node;
+            node.setAttribute("hidden", true);
+          }
+        },
+
         async getSignedInUser() {
           const user = await fxAccounts.getSignedInUser();
           return sanitizeUser(user);
@@ -70,17 +86,37 @@ this.fxa = class extends ExtensionAPI {
 
         async openSyncPreferences() {
           const win = BrowserWindowTracker.getTopWindow();
-          win.openPreferences("paneSync", {entryPoint: "fxa_discoverability"});
+          win.openPreferences("paneSync", { entryPoint: FXA_ENTRYPOINT });
         },
 
-        onUpdate: new EventManager(context, "FxAEventEmitter.onUpdate",
+        emitTelemetryPing(interactionType, elapsedTime) {
+          const data = {
+            interactionType,
+            doorhangerActiveSeconds: `${Math.round(elapsedTime / 1000)}`,
+          };
+          fxaEventEmitter.emit("onTelemetryPing", data);
+        },
+
+        onUpdate: new EventManager(context, "fxa:onUpdate",
           fire => {
-            const listener = (value) => {
-              fire.async(value);
+            const listener = (name, value) => {
+              fire.async(name, value);
             };
             fxaEventEmitter.on("onUpdate", listener);
             return () => {
               fxaEventEmitter.off("onUpdate", listener);
+            };
+          }
+        ).api(),
+
+        onTelemetryPing: new EventManager(context, "fxa:onTelemetryPing",
+          fire => {
+            const listener = (name, value) => {
+              fire.async(value);
+            };
+            fxaEventEmitter.on("onTelemetryPing", listener);
+            return () => {
+              fxaEventEmitter.off("onTelemetryPing", listener);
             };
           }
         ).api(),
@@ -94,7 +130,6 @@ this.fxa = class extends ExtensionAPI {
                 case ONLOGIN_NOTIFICATION:
                 case ONLOGOUT_NOTIFICATION:
                 case ON_PROFILE_CHANGE_NOTIFICATION:
-                  console.log("api::onUpdate::emit", topic);
                   fxaEventEmitter.emit("onUpdate", data);
               }
             },

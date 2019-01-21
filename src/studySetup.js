@@ -38,7 +38,7 @@ const baseStudySetup = {
     /** standard endings */
     "user-disable": {
       baseUrls: [
-        "https://qsurvey.mozilla.com/s3/Shield-Study-Example-Survey/?reason=user-disable",
+        "https://qsurvey.mozilla.com/s3/Avatar-Experiment?reason=user-disable",
       ],
     },
     ineligible: {
@@ -46,26 +46,8 @@ const baseStudySetup = {
     },
     expired: {
       baseUrls: [
-        "https://qsurvey.mozilla.com/s3/Shield-Study-Example-Survey/?reason=expired",
+        "https://qsurvey.mozilla.com/s3/Avatar-Experiment?reason=expired",
       ],
-    },
-
-    /** Study specific endings */
-    "used-often": {
-      baseUrls: [
-        "https://qsurvey.mozilla.com/s3/Shield-Study-Example-Survey/?reason=used-often",
-      ],
-      category: "ended-positive",
-    },
-    "a-non-url-opening-ending": {
-      baseUrls: [],
-      category: "ended-neutral",
-    },
-    "introduction-leave-study": {
-      baseUrls: [
-        "https://qsurvey.mozilla.com/s3/Shield-Study-Example-Survey/?reason=introduction-leave-study",
-      ],
-      category: "ended-negative",
     },
   },
 

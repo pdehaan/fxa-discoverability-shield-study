@@ -9,68 +9,44 @@ const STANDARD_AVATARS = {
   [UNVERIFIED_AVATAR]: "icons/avatar_confirm.svg",
 };
 
-/**  Example Feature module for a Shield Study.
- *
- *  UI:
- *  - during INSTALL only, show a notification bar with 2 buttons:
- *    - "Thanks".  Accepts the study (optional)
- *    - "I don't want this".  Uninstalls the study.
- *
- *  Firefox code:
- *  - Implements the 'introduction' to the 'button choice' study, via notification bar.
- *
- *  Demonstrates `studyUtils` API:
- *
- *  - `telemetry` to instrument "shown", "accept", and "leave-study" events.
- *  - `endStudy` to send a custom study ending.
- *
- **/
-class Feature {
-  constructor() {}
-  /** A Demonstration feature.
-   *
-   *  - variation: study info about particular client study variation
-   *  - reason: string of background.js install/startup/shutdown reason
-   *
-   */
-  configure(studyInfo) {
-    const feature = this;
-    const { variation, isFirstRun } = studyInfo;
+const ADDON_ID = "fxadisco";
+const ADDON_VERSION = "1";
 
-    // Initiate our browser action
-    new FxABrowserFeature(variation);
-
-    // perform something only during first run
-    if (isFirstRun) {
-      // TODO: What should we do on first run
-    }
-  }
-
-  /* good practice to have the literal 'sending' be wrapped up */
-  sendTelemetry(stringStringMap) {
-    browser.study.sendTelemetry(stringStringMap);
-  }
-
-  /**
-   * Called at end of study, and if the user disables the study or it gets uninstalled by other means.
-   */
-  async cleanup() {}
-}
+const ADDON_TITLE = "Firefox Account";
+const SIGN_IN_PAGE = "popup/sign_in/sign_in.html";
+const UNVERIFIED_PAGE = "popup/unverified/unverified.html";
+const MENU_PAGE = "popup/menu/menu.html";
 
 class FxABrowserFeature {
-  /**
-   * - set image, text, click handler (telemetry)
-   */
-  constructor(variation) {
-    browser.browserAction.setTitle({ title: "Firefox Account" });
+  constructor() {}
+
+  configure(studyInfo) {
+    this._variation = studyInfo.variation.name;
+
+    // For control, the addon is still installed but removed
+    // from the browser toolbar. This will allow us to end the
+    // study and have the user fill out survey.
+    if (studyInfo.variation.name === "control") {
+      browser.fxa.hideExtension();
+      return;
+    }
+
+    browser.browserAction.setTitle({ title: ADDON_TITLE });
+    browser.browserAction.setIcon({ path: STANDARD_AVATARS[DEFAULT_AVATAR] });
 
     browser.fxa.listen();
+    browser.fxa.onUpdate.addListener(this.updateState.bind(this));
+    browser.fxa.onTelemetryPing.addListener(this.sendTelemetry.bind(this));
+
+    if (studyInfo.isFirstRun) {
+      this.sendTelemetry({
+        pingType: "start",
+        interactionType: "none",
+        doorhangerActiveSeconds: "0",
+      });
+    }
 
     this.updateState();
-
-    browser.fxa.onUpdate.addListener(() => {
-      this.updateState();
-    });
   }
 
   async updateState() {
@@ -89,8 +65,9 @@ class FxABrowserFeature {
   }
 
   noUser() {
+    this._state = null;
     this.standardAvatar(DEFAULT_AVATAR);
-    browser.browserAction.setPopup({ popup: "popup/sign_in/sign_in.html" });
+    browser.browserAction.setPopup({ popup: SIGN_IN_PAGE });
   }
 
   standardAvatar(id) {
@@ -102,18 +79,20 @@ class FxABrowserFeature {
   }
 
   unverifiedUser() {
+    this._state = "unverified";
     this.standardAvatar(UNVERIFIED_AVATAR);
-    browser.browserAction.setPopup({ popup: "popup/unverified/unverified.html" });
+    browser.browserAction.setPopup({ popup: UNVERIFIED_PAGE });
   }
 
   verifiedUser(user) {
-    if (user.avatar) {
+    this._state = "verified";
+    if (user.avatar && !user.avatarDefault) {
       this.userAvatar(user.avatar);
     } else {
       this.standardAvatar(DEFAULT_AVATAR);
     }
 
-    browser.browserAction.setPopup({ popup: "popup/menu/menu.html" });
+    browser.browserAction.setPopup({ popup: MENU_PAGE });
   }
 
   userAvatar(url) {
@@ -146,6 +125,27 @@ class FxABrowserFeature {
     };
     img.src = url;
   }
+
+  sendTelemetry(data) {
+    browser.study.sendTelemetry({
+      ...data,
+      addonId: ADDON_ID,
+      addonVersion: ADDON_VERSION,
+      branch: this._variation,
+      startTime: `${Date.now()}`,
+      fxaState: this._state || "none",
+      hasAvatar: `${this._avatar === USER_AVATAR}`,
+      uid: this._hashedUid || "none",
+    });
+  }
+
+  cleanup() {
+    this.sendTelemetry({
+      pingType: "stop",
+      interactionType: "none",
+      doorhangerActiveSeconds: "0",
+    });
+  }
 }
 
-window.feature = new Feature();
+window.feature = new FxABrowserFeature();

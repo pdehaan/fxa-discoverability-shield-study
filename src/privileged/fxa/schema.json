@@ -4,6 +4,13 @@
     "description": "Firefox Accounts API",
     "functions": [
       {
+        "name": "hideExtension",
+        "type": "function",
+        "description": "",
+        "async": true,
+        "parameters": []
+      },
+      {
         "name": "getSignedInUser",
         "type": "function",
         "description": "Fetch the current signed-in user",
@@ -23,13 +30,35 @@
         "description": "Listen for events from Firefox Accounts",
         "async": false,
         "parameters": []
+      },
+      {
+        "name": "emitTelemetryPing",
+        "type": "function",
+        "description": "",
+        "async": false,
+        "parameters": [
+          {
+            "name": "interactionType",
+            "type": "string"
+          },
+          {
+            "name": "elapsedTime",
+            "type": "number"
+          }
+        ]
       }
     ],
     "events": [
       {
         "name": "onUpdate",
         "type": "function",
-        "description": "Login event",
+        "description": "FxA account change event",
+        "parameters": []
+      },
+      {
+        "name": "onTelemetryPing",
+        "type": "function",
+        "description": "Telemetry ping event",
         "parameters": []
       }
     ]
