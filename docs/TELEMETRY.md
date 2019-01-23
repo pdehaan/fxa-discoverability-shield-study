@@ -23,6 +23,8 @@
 
 The STUDY SPECIFIC ENDINGS this study supports are:
 
+There are no study specific endings. The study ends once we manually disable or it expires.
+
 
 ## `shield-study` pings (common to all shield-studies)
 
@@ -30,28 +32,220 @@ The STUDY SPECIFIC ENDINGS this study supports are:
 
 ## `shield-study-addon` pings, specific to THIS study.
 
-Events instrumented in this study:
+Pings should be sent from the addon in the following cases:
+* Study enrollment / initialization (`start` pingType)
+* Study unenrollment / expiration (`stop` pingType)
+* UI interaction with the addon (`engage` pingType)
 
-* UI
+Type of interaction events we need recorded (`interactionType` in ping schema):
 
-* Interactions
+1. `toolbarClick`: user clicked on the study's toolbar icon
+2. `signinClick`: user clicked on the sync signin button from the doorhanger (only shown when user is not signed in)
+3. `unverifiedOpenSyncClick`: user clicked on the button to open sync preferences (only shown when account is in unverified state)
+4. `verifiedOpenAccountClick`: user clicked on the button to open FxA account prefs (only shown when account is in verified state)
+5. `verifiedOpenSyncClick`: user clicked on the button to open sync prefs (only shown when account is in verified state)
+6. `verifiedAvatarClick`: user clicked on their avatar to change it (only shown when account is in verified state)
+7. `verifiedSendTabClick`: user clicked on the send tab link (TBD if this will be included; only shown in verified state; only shown to treatment2 branch)
 
-All interactions with the UI create sequences of Telemetry Pings.
-
-All UI `shield-study` `study_state` sequences look like this:
-
-* `enter => install => exit`.
-
-## Example sequence
-
-These are the `payload` fields from all pings in the `shield-study` and `shield-study-addon` buckets.
+## Example ping schema could look like this
+This is just the schema for the specific things we need in this study (what goes in the payload section of the `shield-study-addon` ping), for an example of the full schema see [this](https://github.com/motin/taar-experiment-v3-shield-study/blob/develop/schemas/full-schema.json).
 
 ```
-// common fields
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "fxadisco",
+  "definitions": {
+    "attributes": {
+      "properties": {
+        "pingType": {
+          "type": "string" // one of: start, stop, engage
+        },
+        "addonId": {
+          "type": "string" // always fxadisco
+        },
+        "addonVersion" {
+          "type": "string" // should be 1
+        },
+        "branch" {
+          "type": "string" //  enrollment cohort; one of control, treatment1, treatment2
+        },
+        "startTime": {
+          "type": "string" // timestamp of interaction event or enrollment
+        },
+        "fxaState": {
+          "type": "string" // one of: verified, unverified, none
+        },
+        "interactionType": {
+          "type": "string" // see list above for possible values, or `none`
+        },
+        "doorhangerActiveSeconds": {
+          "type": "string" // number of seconds doorhanger was displayed for (0 if none)
+        },
+        "hasAvatar": {
+          "type": "string" // true or false, does the user have their avatar displayed in the toolbar.
+        }
+      },
+      "additionalProperties": false,
+      "minProperties": 9
+    }
+  }
+}
 
-branch        up-to-expectations-1        // should describe Question text
-study_name    57-perception-shield-study
-addon_version 1.0.0
-version       3
+```
+## Example sequence
 
+Click avatar toolbar icon
+```json
+{
+  "version": 3,
+  "study_name": "fxa-browser-discoverability@shield.mozilla.org",
+  "branch": "treatment",
+  "addon_version": "1.0.0",
+  "shield_version": "5.0.4",
+  "type": "shield-study-addon",
+  "data": {
+    "attributes": {
+      "interactionType": "toolbarClick",
+      "doorhangerActiveSeconds": "0",
+      "addonId": "fxadisco",
+      "addonVersion": "1",
+      "branch": "treatment",
+      "startTime": "1548256460655",
+      "fxaState": "none",
+      "hasAvatar": "false",
+      "uid": "none"
+    }
+  },
+  "testing": true
+}
+```
+
+Click `Turn on Sync...`
+```json
+{
+  "version": 3,
+  "study_name": "fxa-browser-discoverability@shield.mozilla.org",
+  "branch": "treatment",
+  "addon_version": "1.0.0",
+  "shield_version": "5.0.4",
+  "type": "shield-study-addon",
+  "data": {
+    "attributes": {
+      "interactionType": "signinClick",
+      "doorhangerActiveSeconds": "3",
+      "addonId": "fxadisco",
+      "addonVersion": "1",
+      "branch": "treatment",
+      "startTime": "1548256506208",
+      "fxaState": "none",
+      "hasAvatar": "false",
+      "uid": "none"
+    }
+  },
+  "testing": true
+}
+```
+
+Click `Open Sync Settings...`
+```json
+{
+  "version": 3,
+  "study_name": "fxa-browser-discoverability@shield.mozilla.org",
+  "branch": "treatment",
+  "addon_version": "1.0.0",
+  "shield_version": "5.0.4",
+  "type": "shield-study-addon",
+  "data": {
+    "attributes": {
+      "interactionType": "unverifiedOpenSyncClick",
+      "doorhangerActiveSeconds": "1",
+      "addonId": "fxadisco",
+      "addonVersion": "1",
+      "branch": "treatment",
+      "startTime": "1548256636747",
+      "fxaState": "unverified",
+      "hasAvatar": "false",
+      "uid": "none"
+    }
+  },
+  "testing": true
+}
+```
+
+Click avatar icon from pull down menu
+```json
+{
+  "version": 3,
+  "study_name": "fxa-browser-discoverability@shield.mozilla.org",
+  "branch": "treatment",
+  "addon_version": "1.0.0",
+  "shield_version": "5.0.4",
+  "type": "shield-study-addon",
+  "data": {
+    "attributes": {
+      "interactionType": "verifiedAvatarClick",
+      "doorhangerActiveSeconds": "1",
+      "addonId": "fxadisco",
+      "addonVersion": "1",
+      "branch": "treatment",
+      "startTime": "1548256715265",
+      "fxaState": "verified",
+      "hasAvatar": "false",
+      "uid": "f37442ce2a1172a59d0dc77e38c6d3a8"
+    }
+  },
+  "testing": true
+}
+```
+
+Click `Manage Account...`
+```json
+{
+  "version": 3,
+  "study_name": "fxa-browser-discoverability@shield.mozilla.org",
+  "branch": "treatment",
+  "addon_version": "1.0.0",
+  "shield_version": "5.0.4",
+  "type": "shield-study-addon",
+  "data": {
+    "attributes": {
+      "interactionType": "verifiedOpenAccountClick",
+      "doorhangerActiveSeconds": "1",
+      "addonId": "fxadisco",
+      "addonVersion": "1",
+      "branch": "treatment",
+      "startTime": "1548256767566",
+      "fxaState": "verified",
+      "hasAvatar": "true",
+      "uid": "f37442ce2a1172a59d0dc77e38c6d3a8"
+    }
+  },
+  "testing": true
+}
+```
+
+Click `Sync Preferences`
+```json
+{
+  "version": 3,
+  "study_name": "fxa-browser-discoverability@shield.mozilla.org",
+  "branch": "treatment",
+  "addon_version": "1.0.0",
+  "shield_version": "5.0.4",
+  "type": "shield-study-addon",
+  "data": {
+    "attributes": {
+      "interactionType": "verifiedOpenSyncClick",
+      "doorhangerActiveSeconds": "1",
+      "addonId": "fxadisco",
+      "addonVersion": "1",
+      "branch": "treatment",
+      "startTime": "1548256803082",
+      "fxaState": "verified",
+      "hasAvatar": "true",
+      "uid": "f37442ce2a1172a59d0dc77e38c6d3a8"
+    }
+  },
+  "testing": true
+}
 ```
