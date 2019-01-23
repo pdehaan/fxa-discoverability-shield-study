@@ -32,21 +32,27 @@ function sanitizeUser(user) {
       avatarDefault = user.profileCache.profile.avatarDefault;
     }
 
-    return {
-      avatar,
-      avatarDefault,
-      email,
-      hashedUid: hashedUid(),
-      verified,
-    };
+    return getHashedUid()
+      .then((hashedUid) => {
+        return {
+          avatar,
+          avatarDefault,
+          email,
+          hashedUid,
+          verified,
+        };
+      });
   }
 
   return undefined;
 }
 
-function hashedUid() {
+async function getHashedUid() {
   try {
-    return Weave.Service.identity.hashedUID();
+    const token = await Weave.Service.identity._fetchTokenForUser();
+    if (token && token.hashed_fxa_uid) {
+      return token.hashed_fxa_uid;
+    }
   } catch (e) {
   }
 

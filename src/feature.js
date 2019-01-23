@@ -53,7 +53,10 @@ class FxABrowserFeature {
     // The stored sessionToken will always be the source of truth when checking
     // account state.
     const user = await browser.fxa.getSignedInUser();
+
     if (user) {
+      this._hashedUid = user.hashedUid;
+
       if (user.verified) {
         this.verifiedUser(user);
       } else {
