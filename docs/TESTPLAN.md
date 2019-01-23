@@ -27,6 +27,20 @@
 
 ## Manual / QA TEST Instructions
 
+## Testing Platforms and Locales
+
+Currently, testing for this extension should be done at a minimum for these platforms
+
+* Windows 10
+* OSX 10.14
+
+In addition, these english locales should also be tested
+
+* en-GB
+* en-CA
+* en-ZA
+* en-US
+
 ### Preparations
 
 * Download a Nightly version of Firefox

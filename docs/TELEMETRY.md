@@ -23,7 +23,7 @@
 
 The STUDY SPECIFIC ENDINGS this study supports are:
 
-I don't think there are any ways this study can end besides being manually disabled or unenrolled? I think survey should be shown to all enrollees at unenrollment.
+There are no study specific endings. The study ends once we manually disable or it expires.
 
 
 ## `shield-study` pings (common to all shield-studies)
@@ -73,7 +73,7 @@ This is just the schema for the specific things we need in this study (what goes
           "type": "string" // timestamp of interaction event or enrollment
         },
         "fxaState": {
-          "type": "string" // one of: verfied, unverfied, none
+          "type": "string" // one of: verified, unverified, none
         },
         "interactionType": {
           "type": "string" // see list above for possible values, or `none`
@@ -94,4 +94,158 @@ This is just the schema for the specific things we need in this study (what goes
 ```
 ## Example sequence
 
-TBD, example pings from schema above.
+Click avatar toolbar icon
+```json
+{
+  "version": 3,
+  "study_name": "fxa-browser-discoverability@shield.mozilla.org",
+  "branch": "treatment",
+  "addon_version": "1.0.0",
+  "shield_version": "5.0.4",
+  "type": "shield-study-addon",
+  "data": {
+    "attributes": {
+      "interactionType": "toolbarClick",
+      "doorhangerActiveSeconds": "0",
+      "addonId": "fxadisco",
+      "addonVersion": "1",
+      "branch": "treatment",
+      "startTime": "1548256460655",
+      "fxaState": "none",
+      "hasAvatar": "false",
+      "uid": "none"
+    }
+  },
+  "testing": true
+}
+```
+
+Click `Turn on Sync...`
+```json
+{
+  "version": 3,
+  "study_name": "fxa-browser-discoverability@shield.mozilla.org",
+  "branch": "treatment",
+  "addon_version": "1.0.0",
+  "shield_version": "5.0.4",
+  "type": "shield-study-addon",
+  "data": {
+    "attributes": {
+      "interactionType": "signinClick",
+      "doorhangerActiveSeconds": "3",
+      "addonId": "fxadisco",
+      "addonVersion": "1",
+      "branch": "treatment",
+      "startTime": "1548256506208",
+      "fxaState": "none",
+      "hasAvatar": "false",
+      "uid": "none"
+    }
+  },
+  "testing": true
+}
+```
+
+Click `Open Sync Settings...`
+```json
+{
+  "version": 3,
+  "study_name": "fxa-browser-discoverability@shield.mozilla.org",
+  "branch": "treatment",
+  "addon_version": "1.0.0",
+  "shield_version": "5.0.4",
+  "type": "shield-study-addon",
+  "data": {
+    "attributes": {
+      "interactionType": "unverifiedOpenSyncClick",
+      "doorhangerActiveSeconds": "1",
+      "addonId": "fxadisco",
+      "addonVersion": "1",
+      "branch": "treatment",
+      "startTime": "1548256636747",
+      "fxaState": "unverified",
+      "hasAvatar": "false",
+      "uid": "none"
+    }
+  },
+  "testing": true
+}
+```
+
+Click avatar icon from pull down menu
+```json
+{
+  "version": 3,
+  "study_name": "fxa-browser-discoverability@shield.mozilla.org",
+  "branch": "treatment",
+  "addon_version": "1.0.0",
+  "shield_version": "5.0.4",
+  "type": "shield-study-addon",
+  "data": {
+    "attributes": {
+      "interactionType": "verifiedAvatarClick",
+      "doorhangerActiveSeconds": "1",
+      "addonId": "fxadisco",
+      "addonVersion": "1",
+      "branch": "treatment",
+      "startTime": "1548256715265",
+      "fxaState": "verified",
+      "hasAvatar": "false",
+      "uid": "f37442ce2a1172a59d0dc77e38c6d3a8"
+    }
+  },
+  "testing": true
+}
+```
+
+Click `Manage Account...`
+```json
+{
+  "version": 3,
+  "study_name": "fxa-browser-discoverability@shield.mozilla.org",
+  "branch": "treatment",
+  "addon_version": "1.0.0",
+  "shield_version": "5.0.4",
+  "type": "shield-study-addon",
+  "data": {
+    "attributes": {
+      "interactionType": "verifiedOpenAccountClick",
+      "doorhangerActiveSeconds": "1",
+      "addonId": "fxadisco",
+      "addonVersion": "1",
+      "branch": "treatment",
+      "startTime": "1548256767566",
+      "fxaState": "verified",
+      "hasAvatar": "true",
+      "uid": "f37442ce2a1172a59d0dc77e38c6d3a8"
+    }
+  },
+  "testing": true
+}
+```
+
+Click `Sync Preferences`
+```json
+{
+  "version": 3,
+  "study_name": "fxa-browser-discoverability@shield.mozilla.org",
+  "branch": "treatment",
+  "addon_version": "1.0.0",
+  "shield_version": "5.0.4",
+  "type": "shield-study-addon",
+  "data": {
+    "attributes": {
+      "interactionType": "verifiedOpenSyncClick",
+      "doorhangerActiveSeconds": "1",
+      "addonId": "fxadisco",
+      "addonVersion": "1",
+      "branch": "treatment",
+      "startTime": "1548256803082",
+      "fxaState": "verified",
+      "hasAvatar": "true",
+      "uid": "f37442ce2a1172a59d0dc77e38c6d3a8"
+    }
+  },
+  "testing": true
+}
+```
